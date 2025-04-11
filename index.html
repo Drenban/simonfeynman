@@ -1,140 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tree Demo</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <style>
-    .tree { padding: 10px; background: #f9fafb; border-radius: 4px; }
-    .folder { cursor: pointer; font-weight: 500; }
-    .file { margin-left: 20px; color: #4b5563; }
-    .selected { background-color: #e0f2fe; padding: 2px 6px; border-radius: 4px; }
-    .unselectable { color: #9ca3af; }
-  </style>
-</head>
-<body>
-  <div id="app">
-    <tree :elements="elements" :initial-selected-id="'1'" :initial-expanded-items="expandedItems" />
-  </div>
-
-  <script>
-    const { createApp, ref } = Vue;
-
-    const TreeItem = {
-      name: 'TreeItem',
-      props: {
-        item: Object,
-        selectedId: String,
-        expandedItems: Array
-      },
-      setup(props) {
-        const isExpanded = ref(props.expandedItems.includes(props.item.id));
-        const toggle = () => {
-          if (props.item.children) isExpanded.value = !isExpanded.value;
-        };
-        return { isExpanded, toggle };
-      },
-      template: `
-        <div class="ml-4">
-          <div
-            :class="[
-              item.children ? 'folder' : 'file',
-              selectedId === item.id ? 'selected' : '',
-              !item.isSelectable ? 'unselectable' : ''
-            ]"
-            @click="toggle"
+  <head>
+    <meta charset="UTF-8" />
+    <title>File Tree Component</title>
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <template>
+      <Tree
+        class="overflow-hidden rounded-md bg-background p-2"
+        :initial-selected-id="'1'"
+        :initial-expanded-items="[
+          '1',
+          '2',
+          '3',
+          '4',
+          '5',
+          '6',
+          '7',
+          '8',
+          '9',
+          '10',
+          '11',
+          '12',
+          '13',
+          '14',
+          '15',
+          '16',
+          '17',
+          '18',
+          '19',
+        ]"
+        :elements="ELEMENTS"
+      >
+        <Folder
+          id="1"
+          name="root"
+        >
+          <Folder
+            id="2"
+            name="components"
           >
-            <span v-if="item.children">{{ isExpanded ? '▼' : '▶' }} </span>{{ item.name }}
-          </div>
-          <div v-if="item.children && isExpanded">
-            <tree-item
-              v-for="child in item.children"
-              :key="child.id"
-              :item="child"
-              :selected-id="selectedId"
-              :expanded-items="expandedItems"
+            <Folder
+              id="3"
+              name="ui"
+            >
+              <File
+                id="4"
+                name="Button.vue"
+              />
+              <File
+                id="5"
+                name="Card.vue"
+              />
+              <File
+                id="6"
+                name="Input.vue"
+              />
+            </Folder>
+            <File
+              id="7"
+              name="Header.vue"
             />
-          </div>
-        </div>
-      `
-    };
-
-    const Tree = {
-      name: 'Tree',
-      props: {
-        elements: Array,
-        initialSelectedId: String,
-        initialExpandedItems: Array
-      },
-      template: `
-        <div class="tree">
-          <tree-item
-            v-for="element in elements"
-            :key="element.id"
-            :item="element"
-            :selected-id="initialSelectedId"
-            :expanded-items="initialExpandedItems"
+            <File
+              id="8"
+              name="Footer.vue"
+            />
+          </Folder>
+          <Folder
+            id="9"
+            name="composables"
+          >
+            <File
+              id="10"
+              name="useAuth.ts"
+              :is-selectable="false"
+            />
+            <File
+              id="11"
+              name="useTheme.ts"
+            />
+          </Folder>
+          <Folder
+            id="12"
+            name="layouts"
+          >
+            <File
+              id="13"
+              name="default.vue"
+            />
+            <File
+              id="14"
+              name="auth.vue"
+              :is-selectable="false"
+            />
+          </Folder>
+          <Folder
+            id="15"
+            name="pages"
+          >
+            <File
+              id="16"
+              name="index.vue"
+            />
+            <File
+              id="17"
+              name="about.vue"
+            />
+            <Folder
+              id="18"
+              name="auth"
+              :is-selectable="false"
+            >
+              <File
+                id="19"
+                name="login.vue"
+              />
+              <File
+                id="20"
+                name="register.vue"
+              />
+            </Folder>
+          </Folder>
+          <File
+            id="21"
+            name="app.vue"
           />
-        </div>
-      `,
-      components: { TreeItem }
-    };
-
-    createApp({
-      components: { Tree },
-      data() {
-        return {
-          expandedItems: Array.from({ length: 22 }, (_, i) => (i + 1).toString()),
-          elements: [
-            {
-              id: "1", isSelectable: true, name: "root", children: [
-                {
-                  id: "2", isSelectable: true, name: "components", children: [
-                    {
-                      id: "3", isSelectable: true, name: "ui", children: [
-                        { id: "4", isSelectable: true, name: "Button.vue" },
-                        { id: "5", isSelectable: true, name: "Card.vue" },
-                        { id: "6", isSelectable: true, name: "Input.vue" }
-                      ]
-                    },
-                    { id: "7", isSelectable: true, name: "Header.vue" },
-                    { id: "8", isSelectable: true, name: "Footer.vue" }
-                  ]
-                },
-                {
-                  id: "9", isSelectable: true, name: "composables", children: [
-                    { id: "10", isSelectable: false, name: "useAuth.ts" },
-                    { id: "11", isSelectable: true, name: "useTheme.ts" }
-                  ]
-                },
-                {
-                  id: "12", isSelectable: true, name: "layouts", children: [
-                    { id: "13", isSelectable: true, name: "default.vue" },
-                    { id: "14", isSelectable: false, name: "auth.vue" }
-                  ]
-                },
-                {
-                  id: "15", isSelectable: true, name: "pages", children: [
-                    { id: "16", isSelectable: true, name: "index.vue" },
-                    { id: "17", isSelectable: true, name: "about.vue" },
-                    {
-                      id: "18", isSelectable: false, name: "auth", children: [
-                        { id: "19", isSelectable: true, name: "login.vue" },
-                        { id: "20", isSelectable: true, name: "register.vue" }
-                      ]
-                    }
-                  ]
-                },
-                { id: "21", isSelectable: true, name: "app.vue" },
-                { id: "22", isSelectable: true, name: "nuxt.config.ts" }
-              ]
-            }
-          ]
-        };
-      }
-    }).mount('#app');
-  </script>
-</body>
+          <File
+            id="22"
+            name="nuxt.config.ts"
+          />
+        </Folder>
+      </Tree>
+    </template>
+    
+    <script setup lang="ts">
+    import type { TreeViewElement } from "@/components/ui/file-tree/index";
+    
+    const ELEMENTS: TreeViewElement[] = [
+      {
+        id: "1",
+        isSelectable: true,
+        name: "root",
+        children: [
+          {
+            id: "2",
+            isSelectable: true,
+            name: "components",
+            children: [
+              {
+                id: "3",
+                isSelectable: true,
+                name: "ui",
+                children: [
+                  { id: "4", isSelectable: true, name: "Button.vue" },
+                  { id: "5", isSelectable: true, name: "Card.vue" },
+                  { id: "6", isSelectable: true, name: "Input.vue" },
+                ],
+              },
+              { id: "7", isSelectable: true, name: "Header.vue" },
+              { id: "8", isSelectable: true, name: "Footer.vue" },
+            ],
+          },
+          {
+            id: "9",
+            isSelectable: true,
+            name: "composables",
+            children: [
+              { id: "10", isSelectable: false, name: "useAuth.ts" },
+              { id: "11", isSelectable: true, name: "useTheme.ts" },
+            ],
+          },
+          {
+            id: "12",
+            isSelectable: true,
+            name: "layouts",
+            children: [
+              { id: "13", isSelectable: true, name: "default.vue" },
+              { id: "14", isSelectable: false, name: "auth.vue" },
+            ],
+          },
+          {
+            id: "15",
+            isSelectable: true,
+            name: "pages",
+            children: [
+              { id: "16", isSelectable: true, name: "index.vue" },
+              { id: "17", isSelectable: true, name: "about.vue" },
+              {
+                id: "18",
+                isSelectable: false,
+                name: "auth",
+                children: [
+                  { id: "19", isSelectable: true, name: "login.vue" },
+                  { id: "20", isSelectable: true, name: "register.vue" },
+                ],
+              },
+            ],
+          },
+          { id: "21", isSelectable: true, name: "app.vue" },
+          { id: "22", isSelectable: true, name: "nuxt.config.ts" },
+        ],
+      },
+    ];
+    </script>
+  </body>
 </html>
