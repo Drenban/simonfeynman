@@ -1,46 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tree Demo</title>
-  <!-- 引入 Vue.js CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.47/vue.global.min.js"></script>
-  <!-- 简单样式 -->
   <style>
     .tree { padding: 10px; background: #f9fafb; border-radius: 4px; }
-    .folder, .file { margin-left: 20px; }
-    .folder { cursor: pointer; }
-    .file { color: #4b5563; }
+    .folder { cursor: pointer; font-weight: 500; }
+    .file { margin-left: 20px; color: #4b5563; }
+    .selected { background-color: #e0f2fe; padding: 2px 6px; border-radius: 4px; }
     .unselectable { color: #9ca3af; }
   </style>
 </head>
 <body>
   <div id="app">
-    <!-- 树组件 -->
-    <tree :elements="elements" initial-selected-id="1" :initial-expanded-items="expandedItems"></tree>
+    <tree :elements="elements" :initial-selected-id="'1'" :initial-expanded-items="expandedItems" />
   </div>
 
-  <!-- Vue 组件定义 -->
   <script>
     const { createApp, ref } = Vue;
 
-    // Tree 组件
-    const Tree = {
-      props: ['elements', 'initialSelectedId', 'initialExpandedItems'],
-      template: `
-        <div class="tree overflow-hidden rounded-md bg-background p-2">
-          <tree-item v-for="element in elements" :key="element.id" :item="element" 
-            :selected-id="initialSelectedId" :expanded-items="initialExpandedItems"></tree-item>
-        </div>
-      `
-    };
-
-    // TreeItem 组件（处理 Folder 和 File）
     const TreeItem = {
-      props: ['item', 'selectedId', 'expandedItems'],
+      name: 'TreeItem',
+      props: {
+        item: Object,
+        selectedId: String,
+        expandedItems: Array
+      },
       setup(props) {
         const isExpanded = ref(props.expandedItems.includes(props.item.id));
         const toggle = () => {
@@ -49,24 +37,56 @@
         return { isExpanded, toggle };
       },
       template: `
-        <div>
-          <div :class="{ folder: item.children, file: !item.children, unselectable: !item.isSelectable }"
-               @click="toggle">
-            {{ item.name }} {{ selectedId === item.id ? '[selected]' : '' }}
+        <div class="ml-4">
+          <div
+            :class="[
+              item.children ? 'folder' : 'file',
+              selectedId === item.id ? 'selected' : '',
+              !item.isSelectable ? 'unselectable' : ''
+            ]"
+            @click="toggle"
+          >
+            <span v-if="item.children">{{ isExpanded ? '▼' : '▶' }} </span>{{ item.name }}
           </div>
-          <div v-if="item.children && isExpanded" class="folder">
-            <tree-item v-for="child in item.children" :key="child.id" :item="child" 
-              :selected-id="selectedId" :expanded-items="expandedItems"></tree-item>
+          <div v-if="item.children && isExpanded">
+            <tree-item
+              v-for="child in item.children"
+              :key="child.id"
+              :item="child"
+              :selected-id="selectedId"
+              :expanded-items="expandedItems"
+            />
           </div>
         </div>
       `
     };
 
-    // 创建 Vue 应用
+    const Tree = {
+      name: 'Tree',
+      props: {
+        elements: Array,
+        initialSelectedId: String,
+        initialExpandedItems: Array
+      },
+      template: `
+        <div class="tree">
+          <tree-item
+            v-for="element in elements"
+            :key="element.id"
+            :item="element"
+            :selected-id="initialSelectedId"
+            :expanded-items="initialExpandedItems"
+          />
+        </div>
+      `,
+      components: { TreeItem }
+    };
+
     createApp({
+      components: { Tree },
       data() {
         return {
-          expandedItems: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19'],
+          expandedItems: Array.from({ length: 22 }, (_, i) => (i + 1).toString()),
           elements: [
             {
               id: "1", isSelectable: true, name: "root", children: [
@@ -113,8 +133,7 @@
             }
           ]
         };
-      },
-      components: { Tree, TreeItem }
+      }
     }).mount('#app');
   </script>
 </body>
